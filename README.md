@@ -12,19 +12,37 @@ Responsable de administrar el ciclo de vida de las campañas de levantamiento de
 | :--- | :--- |
 | **Framework** | NestJS 11 + TypeScript |
 | **ORM / Persistencia** | Prisma ORM + PostgreSQL (`JSONB`) |
-| **Puerto por Defecto** | `4005` |
+| **Puerto por Defecto** | `4003` |
+| **Caché / Broker** | Valkey (Redis-compatible) en puerto `6379` |
 | **Documentación Técnica** | [`docs/architecture.md`](./docs/architecture.md) y [`docs/database.md`](./docs/database.md) |
+
+---
+
+## 🏗️ Construcción Docker / Dokploy (Build Time)
+
+> [!IMPORTANT]
+> **Variable en tiempo de construcción (Build Argument):**
+> Al compilar la imagen Docker en Dokploy o mediante `docker build`, es **obligatorio** pasar `DATABASE_URL` como **Build Argument** (`ARG DATABASE_URL`). Esto permite que Prisma genere el cliente tipado (`prisma:generate`) durante la fase de compilación del contenedor:
+>
+> * **Build Argument en Dokploy / Docker**:
+>   ```env
+>   DATABASE_URL=postgresql://postgres:your_postgres_password@citydata-postgres-b1mysl:5432/service_campaign
+>   ```
 
 ---
 
 ## 🛠️ Variables de Entorno (`.env`)
 
 ```env
-NODE_ENV=development
+NODE_ENV=production
 APP_NAME=service-campaign
-PORT=4005
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/campaign_db?schema=public"
-LOKI_URL="http://host.docker.internal:3100"
+PORT=4003
+
+LOKI_URL=http://citydata-loki:3100
+VALKEY_URL=redis://:your_valkey_password@valkey:6379/0
+CACHE_TTL=10000
+
+DATABASE_URL=postgresql://postgres:your_postgres_password@citydata-postgres-b1mysl:5432/service_campaign
 ```
 
 ---
@@ -32,14 +50,18 @@ LOKI_URL="http://host.docker.internal:3100"
 ## 💻 Comandos de Ejecución
 
 ```bash
-# Instalar dependencias
+# 1. Instalar dependencias
 yarn install
 
-# Sincronizar esquema Prisma
+# 2. Sincronizar esquema Prisma
 npx prisma db push --schema ./prisma/campaign/schema.prisma
 
-# Iniciar en desarrollo
+# 3. Iniciar en desarrollo
 yarn start:dev
+
+# 4. Compilar e iniciar en producción
+yarn build
+yarn start:prod
 ```
 
 ---
