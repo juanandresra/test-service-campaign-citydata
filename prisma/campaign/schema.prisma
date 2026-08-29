@@ -1,0 +1,133 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "./generated"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// ======================================================
+/// ENUMS
+/// ======================================================
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum CampaignUserStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+  REMOVED
+}
+
+enum CampaignType {
+  WEB
+  MOBILE
+  FIELD
+  PHONE
+}
+
+enum CampaignFormStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+/// ======================================================
+/// Campaign
+/// ======================================================
+
+model Campaign {
+  id String @id @default(uuid()) @db.Uuid
+
+  organizationId String @map("organization_id") @db.Uuid
+
+  /// External reference to Research Service
+  researchId String @map("research_id") @db.Uuid
+
+  name String @db.VarChar(150)
+
+  description String? @db.Text
+
+  type CampaignType @default(WEB)
+
+  status CampaignStatus @default(DRAFT)
+
+  startsAt DateTime? @map("starts_at")
+
+  endsAt DateTime? @map("ends_at")
+
+  configuration Json? @db.JsonB
+
+  /// Current active form version
+  currentFormVersion String? @map("current_form_version") @db.VarChar(20)
+
+  createdBy String @map("created_by") @db.Uuid
+
+  deletedAt DateTime? @map("deleted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userEmails String[] @map("user_emails")
+
+  formVersions CampaignFormVersion[]
+
+  @@index([organizationId])
+
+  @@index([researchId])
+
+  @@index([status])
+
+  @@index([organizationId, status, deletedAt])
+
+  @@index([organizationId, researchId])
+
+  @@map("campaign")
+}
+
+/// ======================================================
+/// CampaignFormVersion
+/// ======================================================
+
+model CampaignFormVersion {
+  id String @id @default(uuid()) @db.Uuid
+
+  campaignId String @map("campaign_id") @db.Uuid
+
+  version String @db.VarChar(20)
+
+  status CampaignFormStatus @default(DRAFT)
+
+  schema Json @db.JsonB
+
+  publishedAt DateTime? @map("published_at")
+
+  publishedBy String? @map("published_by") @db.Uuid
+
+  createdBy String @map("created_by") @db.Uuid
+
+  deletedAt DateTime? @map("deleted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, version])
+
+  @@index([campaignId])
+
+  @@index([campaignId, status])
+
+  @@map("campaign_form_version")
+}
