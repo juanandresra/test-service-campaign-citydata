@@ -228,8 +228,15 @@ export class CampaignService {
   ) {
     const started = Date.now();
 
-    const permissions =
-      await this.getOrganizationActiveFeatures(organizationId);
+    let permissions: PermissionTuple[] = [];
+    try {
+      permissions = await this.getOrganizationActiveFeatures(organizationId);
+    } catch (err) {
+      this.logger.warn(
+        { organizationId, err: err instanceof Error ? err.message : err },
+        'Could not fetch active features from membership service, proceeding without plan limits',
+      );
+    }
 
     // Límite de campañas por research (estudio)
     const campaignMax = this.getFeatureValue(permissions, 'CAMPAIGNMAX');
