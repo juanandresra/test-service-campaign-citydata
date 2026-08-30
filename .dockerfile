@@ -39,4 +39,4 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma/campaign/generated ./prisma/campaign/generated
 
 EXPOSE 4001
-CMD ["sh", "-c", "yarn prisma:push:cam && yarn start:prod"]
+CMD ["sh", "-c", "yarn prisma:deploy:cam && yarn start:prod"]

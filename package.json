@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma": "prisma",
-    "prisma:deploy:cam": "prisma deploy --config=./prisma/campaign/prisma.config.ts",
+    "prisma:deploy:cam": "prisma migrate deploy --config=./prisma/campaign/prisma.config.ts",
     "prisma:generate:cam": "prisma generate --config=./prisma/campaign/prisma.config.ts",
     "prisma:migrate:cam": "prisma migrate dev --config=./prisma/campaign/prisma.config.ts",
     "prisma:migrate-reset:cam": "prisma migrate reset --config=./prisma/campaign/prisma.config.ts",
