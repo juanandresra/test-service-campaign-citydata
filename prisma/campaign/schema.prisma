@@ -81,8 +81,6 @@ model Campaign {
 
   formVersions CampaignFormVersion[]
 
-  @@index([organizationId])
-
   @@index([researchId])
 
   @@index([status])
@@ -123,9 +121,8 @@ model CampaignFormVersion {
 
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
+  /// Clave única por versión (cubre automáticamente búsquedas por campaign_id)
   @@unique([campaignId, version])
-
-  @@index([campaignId])
 
   @@index([campaignId, status])
 
